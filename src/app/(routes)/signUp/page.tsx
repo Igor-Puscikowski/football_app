@@ -1,5 +1,5 @@
 import React from "react";
-
+import { registerUser } from "@/action/user";
 export default function SignUpPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -7,7 +7,21 @@ export default function SignUpPage() {
         <div className="text-center mb-6">
           <h1>Sign Up</h1>
         </div>
-        <form>
+        <form action={registerUser}>
+          <div className="mb-4">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700"
+            >
+              User name
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
           <div className="mb-4">
             <label
               htmlFor="email"
@@ -19,6 +33,7 @@ export default function SignUpPage() {
               type="email"
               id="email"
               placeholder="Enter email"
+              name="email"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
@@ -32,21 +47,8 @@ export default function SignUpPage() {
             <input
               type="password"
               id="password"
+              name="password"
               placeholder="Enter password"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirm-password"
-              placeholder="Enter confirm password"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
