@@ -23,7 +23,7 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
+    //test
     const hashedPassword = await hashPassword(password);
 
     const user = await prisma.user.create({
