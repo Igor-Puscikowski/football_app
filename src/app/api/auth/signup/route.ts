@@ -1,44 +1,59 @@
 import { NextResponse } from "next/server";
 import prisma from "@/utils/db";
 import { hashPassword } from "@/lib/hash";
+import { z } from "zod";
+
+// 🛡️ Schemat walidacji Zod
+const signUpSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 export async function POST(req: Request) {
   try {
-    const { email, password, name } = await req.json();
+    // 📝 Parsowanie i walidacja danych wejściowych
+    const body = await req.json();
+    const parsedBody = signUpSchema.safeParse(body);
 
-    if (!email || !password || !name) {
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: parsedBody.error.errors[0].message },
         { status: 400 }
       );
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    const { username, email, password } = parsedBody.data;
 
+    // 🔍 Sprawdzenie, czy użytkownik już istnieje
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
-        { error: "User already exists" },
+        { error: "User with this email already exists." },
         { status: 400 }
       );
     }
-    //test
+
+    // 🔑 Hashowanie hasła
     const hashedPassword = await hashPassword(password);
 
-    const user = await prisma.user.create({
-      data: { email, name, password: hashedPassword },
+    // 📝 Tworzenie nowego użytkownika
+    await prisma.user.create({
+      data: {
+        name: username,
+        email,
+        password: hashedPassword,
+      },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "User created successfully",
-      user,
-    });
-  } catch (error) {
-    console.error("Signup Error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { success: true, message: "User created successfully." },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Internal server error." },
       { status: 500 }
     );
   }
