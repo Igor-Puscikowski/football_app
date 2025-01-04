@@ -1,12 +1,30 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SearchBar from "@/components/SearchBar";
 import Image from "next/image";
 import MatchCard from "@/components/MatchCard";
-
 import { mockMatches } from "@/data/matchData";
 
+interface Match {
+  id: string;
+  title: string;
+  location: string;
+  dateTime: string;
+  description: string;
+  teamName: string;
+  status: "pending" | "confirmed";
+}
+
 export default function MatchesPage() {
+  const [matches, setMatches] = useState<Match[]>([]);
+
+  // Pobierz dane z localStorage i połącz z mockMatches
+  useEffect(() => {
+    const storedMatches = JSON.parse(localStorage.getItem("matches") || "[]");
+    const combinedMatches = [...mockMatches, ...storedMatches]; // Łączymy mockMatches i dane z localStorage
+    setMatches(combinedMatches);
+  }, []);
+
   return (
     <div className="w-full flex flex-col items-center">
       {/* Sekcja z obrazem i SearchBar */}
@@ -33,7 +51,7 @@ export default function MatchesPage() {
 
       {/* Sekcja z kartami meczów */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-[80%]">
-        {mockMatches.map((match) => (
+        {matches.map((match) => (
           <MatchCard
             key={match.id}
             title={match.title}
