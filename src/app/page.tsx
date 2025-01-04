@@ -25,13 +25,13 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
             <Link
-              href="/"
+              href="signUp"
               className="px-6 py-3 bg-yellow-500 text-gray-900 font-bold rounded-lg hover:bg-yellow-600"
             >
               Dołącz już teraz
             </Link>
             <Link
-              href="/"
+              href="about"
               className="px-6 py-3 border border-white text-white font-bold rounded-lg hover:bg-white hover:text-gray-900"
             >
               Dowiedz się więcej
