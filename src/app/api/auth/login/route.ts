@@ -43,8 +43,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🎟️ Generowanie tokenu JWT
-    const token = signToken({ userId: user.id });
+    // 🎟️ Generowanie tokenu JWT z odpowiednimi danymi
+    const token = signToken({ id: user.id, email: user.email });
 
     return NextResponse.json({ token }, { status: 200 });
   } catch (error) {

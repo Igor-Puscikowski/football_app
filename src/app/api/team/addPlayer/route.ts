@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(player);
+    return NextResponse.json(player); // Zweryfikuj, że player ma poprawny typ
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Błąd serwera" }, { status: 500 });
