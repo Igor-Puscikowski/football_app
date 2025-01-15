@@ -34,17 +34,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Pobranie danych wejściowych
-    const { matchTitle, matchLocation, matchDateTime, matchDescription } =
-      await req.json();
+    const { matchTitle, matchLocation, matchDescription } = await req.json();
     console.log("Request body:", {
       matchTitle,
       matchLocation,
-      matchDateTime,
+
       matchDescription,
     });
 
     // Walidacja danych wejściowych
-    if (!matchTitle || !matchLocation || !matchDateTime || !matchDescription) {
+    if (!matchTitle || !matchLocation || !matchDescription) {
       console.error("Invalid input data");
       return NextResponse.json(
         { error: "All fields are required" },
@@ -61,7 +60,6 @@ export async function POST(req: NextRequest) {
       data: {
         title: matchTitle,
         location: matchLocation,
-        dateTime: matchDateTime,
         description: matchDescription,
         teamId,
         userId,
@@ -71,7 +69,7 @@ export async function POST(req: NextRequest) {
     console.log({
       title: matchTitle,
       location: matchLocation,
-      dateTime: matchDateTime,
+
       description: matchDescription,
       teamId,
       userId,

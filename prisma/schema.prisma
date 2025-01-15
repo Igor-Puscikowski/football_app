@@ -47,7 +47,7 @@ model Match {
   id          String   @id @default(cuid())
   title       String
   location    String
-  dateTime    DateTime
+
   description String
   team        Team     @relation(fields: [teamId], references: [id])
   teamId      String
