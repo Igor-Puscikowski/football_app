@@ -53,6 +53,6 @@ model Match {
   teamId      String
   user        User     @relation(name: "UserMatches", fields: [userId], references: [id])
   userId      String
-  status      String   @default("pending")
+  status      String   @default("Dołącz")
   createdAt   DateTime @default(now())
 }
