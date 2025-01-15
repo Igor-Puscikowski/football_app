@@ -103,6 +103,30 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
+                    href="/create"
+                    className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
+                  >
+                    Create match
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/createTeam"
+                    className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
+                  >
+                    Create Team
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/manageTeam"
+                    className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
+                  >
+                    Manage Team
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/profile"
                     className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
                   >

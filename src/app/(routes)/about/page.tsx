@@ -1,5 +1,11 @@
+import Navbar from "@/components/Navbar";
 import React from "react";
 // sasasa
 export default function About() {
-  return <div>About</div>;
+  return (
+    <>
+      <Navbar />
+      <div>About</div>
+    </>
+  );
 }

@@ -11,14 +11,9 @@ interface Player {
 interface Props {
   players: Player[];
   onEditPlayer: (player: Player) => void;
-  onDeletePlayer: (id: string) => void;
 }
 
-const PlayerTable: React.FC<Props> = ({
-  players,
-  onEditPlayer,
-  onDeletePlayer,
-}) => {
+const PlayerTable: React.FC<Props> = ({ players, onEditPlayer }) => {
   return (
     <div className="overflow-hidden border border-gray-300 rounded-lg shadow-md">
       <table className="w-full text-sm text-left text-gray-500">
@@ -27,7 +22,7 @@ const PlayerTable: React.FC<Props> = ({
             <th className="px-4 py-2">Zawodnik</th>
             <th className="px-4 py-2">Pozycja</th>
             <th className="px-4 py-2">Poziom gracza</th>
-            <th className="px-4 py-2 text-right">Akcje</th>
+            <th className="px-4 py-2 text-right"></th>
           </tr>
         </thead>
         <tbody>
@@ -42,12 +37,6 @@ const PlayerTable: React.FC<Props> = ({
                   className="text-blue-500 hover:underline"
                 >
                   ✏️ Edytuj
-                </button>
-                <button
-                  onClick={() => onDeletePlayer(player.id)}
-                  className="text-red-500 hover:underline"
-                >
-                  🗑️ Usuń
                 </button>
               </td>
             </tr>
