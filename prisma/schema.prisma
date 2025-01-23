@@ -47,7 +47,7 @@ model Match {
   id          String   @id @default(cuid())
   title       String
   location    String
-
+  dateTime    DateTime @default(now())// Pole typu DateTime dla daty i godziny
   description String
   team        Team     @relation(fields: [teamId], references: [id])
   teamId      String

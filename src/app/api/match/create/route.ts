@@ -34,7 +34,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Pobranie danych wejściowych
-    const { matchTitle, matchLocation, matchDescription } = await req.json();
+    const { matchTitle, matchLocation, matchDateTime, matchDescription } =
+      await req.json();
     console.log("Request body:", {
       matchTitle,
       matchLocation,
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Walidacja danych wejściowych
-    if (!matchTitle || !matchLocation || !matchDescription) {
+    if (!matchTitle || !matchLocation || !matchDescription || !matchDateTime) {
       console.error("Invalid input data");
       return NextResponse.json(
         { error: "All fields are required" },
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
         title: matchTitle,
         location: matchLocation,
         description: matchDescription,
+        dateTime: new Date(matchDateTime),
         teamId,
         userId,
         status: "Dołącz",
