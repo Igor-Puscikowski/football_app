@@ -1,53 +1,50 @@
 "use client";
 import React, { useState } from "react";
-import CitySelect from "@/components/CitySelect";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 
-interface Match {
-  id: string;
-  title: string;
-  location: string;
-  dateTime: string;
-  description: string;
-  teamName: string;
-  status: "pending" | "confirmed";
-}
-
 export default function CreateMatchPage() {
   const [title, setTitle] = useState("");
-  const [city, setCity] = useState("");
+  const [location, setLocation] = useState("");
   const [dateTime, setDateTime] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !city || !dateTime) {
+    if (!title || !location || !dateTime) {
       setError("Wszystkie pola są wymagane!");
       return;
     }
 
-    const newMatch: Match = {
-      id: Date.now().toString(),
-      title,
-      location: city,
-      dateTime,
-      description,
-      teamName: "Team Z",
-      status: "pending",
-    };
+    try {
+      const response = await fetch("/api/match/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          matchTitle: title,
+          matchLocation: location,
+          matchDateTime: dateTime,
+          matchDescription: description,
+        }),
+      });
 
-    // Zapisz mecz w localStorage
-    const existingMatches = JSON.parse(localStorage.getItem("matches") || "[]");
-    localStorage.setItem(
-      "matches",
-      JSON.stringify([...existingMatches, newMatch])
-    );
-
-    router.push("/matches"); // Przekierowanie na stronę z meczami
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Mecz utworzony:", data);
+        router.push("/matches"); // Przekierowanie do listy meczów
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Wystąpił błąd.");
+      }
+    } catch (error) {
+      console.error("Błąd tworzenia meczu:", error);
+      setError("Wystąpił błąd serwera.");
+    }
   };
 
   return (
@@ -69,7 +66,13 @@ export default function CreateMatchPage() {
           </div>
           <div>
             <label className="block text-gray-700">Lokalizacja</label>
-            <CitySelect selectedCity={city} setSelectedCity={setCity} />
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full p-2 border rounded"
+              required
+            />
           </div>
           <div>
             <label className="block text-gray-700">Data i godzina</label>
