@@ -8,7 +8,8 @@ interface MatchCardProps {
   description: string;
   teamName: string;
   teamId: string;
-  status: "pending" | "confirmed";
+  status: "pending" | "confirmed" | "join";
+  isOwner: boolean;
 }
 
 const MatchCard: React.FC<MatchCardProps> = ({
@@ -18,18 +19,20 @@ const MatchCard: React.FC<MatchCardProps> = ({
   description,
   teamName,
   teamId,
+  status,
+  isOwner,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [teamDetails, setTeamDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInfoClick = async () => {
-    console.log("Fetching team info for ID:", teamId); // Debuguj teamId
-
     if (!teamId) {
       alert("Brak ID drużyny.");
       return;
     }
 
+    setLoading(true);
     try {
       const response = await fetch(`/api/team/${teamId}`);
       if (!response.ok) {
@@ -41,6 +44,29 @@ const MatchCard: React.FC<MatchCardProps> = ({
     } catch (error) {
       console.error("Błąd podczas pobierania szczegółów drużyny:", error);
       alert("Nie udało się pobrać szczegółów drużyny.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoinMatch = async () => {
+    try {
+      const response = await fetch("/api/match/apply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ teamId, matchId: teamId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Nie udało się wysłać zgłoszenia.");
+      }
+
+      alert("Zgłoszenie wysłane. Oczekuje na potwierdzenie.");
+    } catch (error) {
+      console.error("Błąd podczas wysyłania zgłoszenia:", error);
+      alert("Nie udało się wysłać zgłoszenia.");
     }
   };
 
@@ -63,10 +89,33 @@ const MatchCard: React.FC<MatchCardProps> = ({
       <div className="flex justify-between items-center mt-4">
         <button
           onClick={handleInfoClick}
-          className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs"
+          className={`bg-yellow-500 text-white px-2 py-1 rounded-md text-xs ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={loading}
         >
-          Info
+          {loading ? "Ładowanie..." : "Info"}
         </button>
+
+        {isOwner ? (
+          <button
+            onClick={() => alert("Przekierowanie do edycji meczu")}
+            className="bg-blue-500 text-white px-2 py-1 rounded-md text-xs"
+          >
+            Edytuj
+          </button>
+        ) : status === "join" ? (
+          <button
+            onClick={handleJoinMatch}
+            className="bg-green-500 text-white px-2 py-1 rounded-md text-xs"
+          >
+            Dołącz
+          </button>
+        ) : (
+          <span className="bg-gray-500 text-white px-2 py-1 rounded-md text-xs">
+            {status === "confirmed" ? "Potwierdzony" : "Oczekuje"}
+          </span>
+        )}
       </div>
 
       {showModal && teamDetails && (

@@ -13,14 +13,37 @@ interface Match {
   description: string;
   teamName: string;
   teamId: string;
-  status: "pending" | "confirmed";
+  status: "pending" | "confirmed" | "join"; // Dodano "join" jako możliwy status
 }
 
 export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUserTeamId, setCurrentUserTeamId] = useState<string | null>(
+    null
+  );
 
+  // Pobierz ID drużyny zalogowanego użytkownika
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("/api/user/current");
+        if (!response.ok) {
+          throw new Error("Nie udało się pobrać danych użytkownika.");
+        }
+        const userData = await response.json();
+        setCurrentUserTeamId(userData.teamId); // Zakładamy, że `teamId` jest częścią odpowiedzi
+      } catch (err) {
+        console.error("Błąd podczas pobierania danych użytkownika:", err);
+        setCurrentUserTeamId(null);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
+  // Pobierz mecze z API
   useEffect(() => {
     const fetchMatches = async () => {
       try {
@@ -29,18 +52,25 @@ export default function MatchesPage() {
           throw new Error("Nie udało się pobrać danych meczów.");
         }
         const data = await response.json();
-        setMatches(data);
+
+        // Aktualizacja statusu meczu na podstawie logiki
+        const updatedMatches = data.map((match: Match) => ({
+          ...match,
+          status: currentUserTeamId === match.teamId ? "pending" : "join", // Ustawienie statusu "join" dla innych drużyn
+        }));
+
+        setMatches(updatedMatches);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Nieznany błąd";
-        setError(errorMessage); // Używamy bezpiecznego sprawdzenia
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
     fetchMatches();
-  }, []);
+  }, [currentUserTeamId]);
 
   if (loading) {
     return <p className="text-center mt-10">Ładowanie meczów...</p>;
@@ -50,7 +80,7 @@ export default function MatchesPage() {
     return (
       <>
         <Navbar />
-        <p className="text-center mt-10 text-red-500">{error}</p>
+        <p className="text-center mt-10 text-red-500">{error}</p>;
       </>
     );
   }
@@ -88,6 +118,7 @@ export default function MatchesPage() {
               teamName={match.teamName}
               teamId={match.teamId}
               status={match.status}
+              isOwner={match.teamId === currentUserTeamId} // Logika sprawdzania właściciela meczu
             />
           ))}
         </div>
