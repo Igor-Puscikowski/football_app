@@ -8,8 +8,13 @@ interface MatchCardProps {
   description: string;
   teamName: string;
   teamId: string;
-  status: "pending" | "confirmed" | "join";
-  isOwner: boolean;
+  matchId: string;
+  status: "pending" | "confirmed" | "join"; // Możliwe statusy
+  isOwner: boolean; // Czy użytkownik jest właścicielem meczu
+  onStatusUpdate: (
+    matchId: string,
+    newStatus: "pending" | "confirmed" | "join"
+  ) => void; // Callback do aktualizacji statusu
 }
 
 const MatchCard: React.FC<MatchCardProps> = ({
@@ -19,13 +24,16 @@ const MatchCard: React.FC<MatchCardProps> = ({
   description,
   teamName,
   teamId,
+  matchId,
   status,
   isOwner,
+  onStatusUpdate,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [teamDetails, setTeamDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
+  // Obsługa kliknięcia w przycisk "Info"
   const handleInfoClick = async () => {
     if (!teamId) {
       alert("Brak ID drużyny.");
@@ -49,24 +57,30 @@ const MatchCard: React.FC<MatchCardProps> = ({
     }
   };
 
+  // Obsługa kliknięcia w przycisk "Dołącz"
   const handleJoinMatch = async () => {
     try {
+      setLoading(true);
       const response = await fetch("/api/match/apply", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ teamId, matchId: teamId }),
+        body: JSON.stringify({ matchId }),
       });
 
       if (!response.ok) {
-        throw new Error("Nie udało się wysłać zgłoszenia.");
+        const data = await response.json();
+        throw new Error(data.error || "Nie udało się wysłać zgłoszenia.");
       }
 
+      onStatusUpdate(matchId, "pending"); // Aktualizacja statusu
       alert("Zgłoszenie wysłane. Oczekuje na potwierdzenie.");
     } catch (error) {
       console.error("Błąd podczas wysyłania zgłoszenia:", error);
       alert("Nie udało się wysłać zgłoszenia.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,6 +101,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
       </p>
 
       <div className="flex justify-between items-center mt-4">
+        {/* Przycisk Info */}
         <button
           onClick={handleInfoClick}
           className={`bg-yellow-500 text-white px-2 py-1 rounded-md text-xs ${
@@ -97,6 +112,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
           {loading ? "Ładowanie..." : "Info"}
         </button>
 
+        {/* Logika przycisków */}
         {isOwner ? (
           <button
             onClick={() => alert("Przekierowanie do edycji meczu")}
@@ -108,6 +124,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
           <button
             onClick={handleJoinMatch}
             className="bg-green-500 text-white px-2 py-1 rounded-md text-xs"
+            disabled={loading}
           >
             Dołącz
           </button>
@@ -118,6 +135,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
         )}
       </div>
 
+      {/* Modal z informacjami o drużynie */}
       {showModal && teamDetails && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md">

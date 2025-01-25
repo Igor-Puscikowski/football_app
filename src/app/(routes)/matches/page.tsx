@@ -18,6 +18,9 @@ interface Match {
 
 export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([]);
+  const [applications, setApplications] = useState<
+    { matchId: string; status: "pending" | "confirmed" }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserTeamId, setCurrentUserTeamId] = useState<string | null>(
@@ -43,6 +46,26 @@ export default function MatchesPage() {
     fetchCurrentUser();
   }, []);
 
+  // Pobierz zgłoszenia drużyny
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const response = await fetch("/api/user/applications");
+        if (!response.ok) {
+          throw new Error("Nie udało się pobrać zgłoszeń.");
+        }
+        const data = await response.json();
+        setApplications(data);
+      } catch (err) {
+        console.error("Błąd podczas pobierania zgłoszeń:", err);
+      }
+    };
+
+    if (currentUserTeamId) {
+      fetchApplications();
+    }
+  }, [currentUserTeamId]);
+
   // Pobierz mecze z API
   useEffect(() => {
     const fetchMatches = async () => {
@@ -53,11 +76,17 @@ export default function MatchesPage() {
         }
         const data = await response.json();
 
-        // Aktualizacja statusu meczu na podstawie logiki
-        const updatedMatches = data.map((match: Match) => ({
-          ...match,
-          status: currentUserTeamId === match.teamId ? "pending" : "join", // Ustawienie statusu "join" dla innych drużyn
-        }));
+        // Aktualizacja statusu meczu na podstawie zgłoszeń
+        const updatedMatches = data.map((match: Match) => {
+          const application = applications.find(
+            (app) => app.matchId === match.id
+          );
+
+          return {
+            ...match,
+            status: application?.status || "join", // Ustawienie statusu na podstawie zgłoszenia
+          };
+        });
 
         setMatches(updatedMatches);
       } catch (err) {
@@ -70,7 +99,19 @@ export default function MatchesPage() {
     };
 
     fetchMatches();
-  }, [currentUserTeamId]);
+  }, [applications]); // Odśwież mecze, gdy aplikacje zostaną załadowane
+
+  // Obsługa aktualizacji statusu meczu
+  const handleStatusUpdate = (
+    matchId: string,
+    newStatus: "pending" | "confirmed" | "join"
+  ) => {
+    setMatches((prevMatches) =>
+      prevMatches.map((match) =>
+        match.id === matchId ? { ...match, status: newStatus } : match
+      )
+    );
+  };
 
   if (loading) {
     return <p className="text-center mt-10">Ładowanie meczów...</p>;
@@ -118,7 +159,9 @@ export default function MatchesPage() {
               teamName={match.teamName}
               teamId={match.teamId}
               status={match.status}
+              matchId={match.id}
               isOwner={match.teamId === currentUserTeamId} // Logika sprawdzania właściciela meczu
+              onStatusUpdate={handleStatusUpdate} // Przekazywanie funkcji aktualizacji statusu
             />
           ))}
         </div>
