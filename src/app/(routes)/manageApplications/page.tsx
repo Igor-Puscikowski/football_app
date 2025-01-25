@@ -15,12 +15,24 @@ interface Match {
   applications: Application[];
 }
 
+interface MyApplication {
+  id: string;
+  status: "pending" | "confirmed" | "rejected";
+  match: {
+    id: string;
+    title: string;
+    dateTime: string;
+    team: { name: string };
+  };
+}
+
 export default function ManageApplicationsPage() {
   const [matches, setMatches] = useState<Match[]>([]);
+  const [myApplications, setMyApplications] = useState<MyApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [teamDetails, setTeamDetails] = useState<any>(null);
-  const [loadingTeamInfo, setLoadingTeamInfo] = useState(false); // Dodano dla przycisku "Info"
+  const [loadingTeamInfo, setLoadingTeamInfo] = useState(false);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -40,7 +52,23 @@ export default function ManageApplicationsPage() {
       }
     };
 
+    const fetchMyApplications = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:3000/api/applications/my"
+        );
+        if (!response.ok) {
+          throw new Error("Nie udało się pobrać moich aplikacji.");
+        }
+        const data = await response.json();
+        setMyApplications(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Nieznany błąd");
+      }
+    };
+
     fetchApplications();
+    fetchMyApplications();
   }, []);
 
   const handleUpdateStatus = async (
@@ -84,7 +112,7 @@ export default function ManageApplicationsPage() {
       alert("Brak ID drużyny.");
       return;
     }
-    console.log("Fetching team details for teamId:", teamId); // Logowanie
+    console.log("Fetching team details for teamId:", teamId);
 
     setLoadingTeamInfo(true);
     try {
@@ -120,6 +148,49 @@ export default function ManageApplicationsPage() {
       <Navbar />
       <div className="container mx-auto mt-10">
         <h1 className="text-2xl font-bold mb-6">Zarządzanie aplikacjami</h1>
+
+        {/* Sekcja Moje Aplikacje */}
+        <h2 className="text-xl font-semibold mb-4">Moje aplikacje</h2>
+        <div className="grid grid-cols-1 gap-4 mb-8">
+          {myApplications.map((app) => (
+            <div
+              key={app.id}
+              className="p-4 bg-white shadow-md rounded-lg flex justify-between items-center"
+            >
+              <div>
+                <h3 className="text-lg font-semibold">{app.match.title}</h3>
+                <p className="text-gray-700 text-sm mb-1">
+                  <strong>Przeciwnik:</strong> {app.match.team.name}
+                </p>
+                <p className="text-gray-700 text-sm mb-1">
+                  <strong>Data meczu:</strong>{" "}
+                  {new Date(app.match.dateTime).toLocaleString()}
+                </p>
+                <p className="text-gray-700 text-sm">
+                  <strong>Status:</strong> {app.status}
+                </p>
+              </div>
+              <div>
+                {app.status === "pending" && (
+                  <span className="text-yellow-500 font-bold">Oczekuje</span>
+                )}
+                {app.status === "confirmed" && (
+                  <span className="text-green-500 font-bold">
+                    Zaakceptowano
+                  </span>
+                )}
+                {app.status === "rejected" && (
+                  <span className="text-red-500 font-bold">Odrzucono</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Sekcja Zarządzanie aplikacjami */}
+        <h2 className="text-xl font-semibold mb-4">
+          Aplikacje do Twoich meczów
+        </h2>
         {matches.map((match) => (
           <div key={match.id} className="mb-8">
             <h2 className="text-xl font-semibold mb-4">{match.title}</h2>
@@ -180,6 +251,7 @@ export default function ManageApplicationsPage() {
         ))}
       </div>
 
+      {/* Modal szczegóły drużyny */}
       {teamDetails && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md">

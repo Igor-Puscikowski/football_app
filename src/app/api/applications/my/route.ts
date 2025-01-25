@@ -28,7 +28,13 @@ export async function GET(req: NextRequest) {
 
     const applications = await prisma.application.findMany({
       where: { teamId: userWithTeam.team.id },
-      include: { match: true },
+      include: {
+        match: {
+          include: {
+            team: true, // Dołącz szczegóły drużyny związanej z meczem
+          },
+        },
+      },
     });
 
     return NextResponse.json(applications, { status: 200 });
