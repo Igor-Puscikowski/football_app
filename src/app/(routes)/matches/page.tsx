@@ -18,6 +18,7 @@ interface Match {
 
 export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([]);
+  const [filteredMatches, setFilteredMatches] = useState<Match[]>([]);
   const [applications, setApplications] = useState<
     { matchId: string; status: "pending" | "confirmed" }[]
   >([]);
@@ -89,6 +90,7 @@ export default function MatchesPage() {
         });
 
         setMatches(updatedMatches);
+        setFilteredMatches(updatedMatches); // Ustawienie początkowej listy meczów
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Nieznany błąd";
@@ -101,12 +103,26 @@ export default function MatchesPage() {
     fetchMatches();
   }, [applications]); // Odśwież mecze, gdy aplikacje zostaną załadowane
 
+  // Obsługa wyszukiwania
+  const handleSearch = (query: string) => {
+    const normalizedQuery = query.toLowerCase();
+    const filtered = matches.filter((match) =>
+      match.location.toLowerCase().includes(normalizedQuery)
+    );
+    setFilteredMatches(filtered); // Aktualizacja filtrowanej listy
+  };
+
   // Obsługa aktualizacji statusu meczu
   const handleStatusUpdate = (
     matchId: string,
     newStatus: "pending" | "confirmed" | "join"
   ) => {
     setMatches((prevMatches) =>
+      prevMatches.map((match) =>
+        match.id === matchId ? { ...match, status: newStatus } : match
+      )
+    );
+    setFilteredMatches((prevMatches) =>
       prevMatches.map((match) =>
         match.id === matchId ? { ...match, status: newStatus } : match
       )
@@ -144,12 +160,12 @@ export default function MatchesPage() {
               Aktualne wydarzenia
             </h1>
             <div className="w-full max-w-md px-4 mt-auto mb-4 md:mb-8">
-              <SearchBar onSearch={() => {}} />
+              <SearchBar onSearch={handleSearch} />
             </div>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-[80%]">
-          {matches.map((match) => (
+          {filteredMatches.map((match) => (
             <MatchCard
               key={match.id}
               title={match.title}
