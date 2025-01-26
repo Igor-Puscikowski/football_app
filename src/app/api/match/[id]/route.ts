@@ -97,17 +97,22 @@ export async function DELETE(
       );
     }
 
+    // Usuń wszystkie powiązane zgłoszenia do meczu
+    await prisma.application.deleteMany({
+      where: { matchId },
+    });
+
     // Usuń mecz
     await prisma.match.delete({
       where: { id: matchId },
     });
 
     return NextResponse.json(
-      { message: "Match deleted successfully" },
+      { message: "Match and related applications deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting match:", error);
+    console.error("Error deleting match and applications:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

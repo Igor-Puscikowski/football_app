@@ -71,6 +71,45 @@ export default function ManageApplicationsPage() {
     fetchMyApplications();
   }, []);
 
+  const fetchTeamIdFromApplication = async (applicationId: string) => {
+    try {
+      const response = await fetch(`/api/applications/team/${applicationId}`);
+      if (!response.ok) {
+        throw new Error("Nie udało się pobrać ID drużyny.");
+      }
+      const data = await response.json();
+      return data.teamId;
+    } catch (err) {
+      console.error("Błąd podczas pobierania ID drużyny:", err);
+      return null;
+    }
+  };
+
+  const handleInfoClick = async (applicationId: string) => {
+    setLoadingTeamInfo(true);
+
+    try {
+      const teamId = await fetchTeamIdFromApplication(applicationId);
+      if (!teamId) {
+        alert("Nie udało się pobrać ID drużyny.");
+        return;
+      }
+
+      const response = await fetch(`/api/team/${teamId}`);
+      if (!response.ok) {
+        throw new Error("Nie udało się pobrać szczegółów drużyny.");
+      }
+
+      const data = await response.json();
+      setTeamDetails(data);
+    } catch (error) {
+      console.error("Błąd podczas pobierania szczegółów drużyny:", error);
+      alert("Nie udało się pobrać szczegółów drużyny.");
+    } finally {
+      setLoadingTeamInfo(false);
+    }
+  };
+
   const handleUpdateStatus = async (
     applicationId: string,
     newStatus: "confirmed" | "rejected"
@@ -104,31 +143,6 @@ export default function ManageApplicationsPage() {
     }
   };
 
-  const handleFetchTeamDetails = async (teamId: string) => {
-    if (!teamId) {
-      console.error(
-        "Brak ID drużyny przekazanego do funkcji handleFetchTeamDetails."
-      );
-      alert("Brak ID drużyny.");
-      return;
-    }
-
-    setLoadingTeamInfo(true);
-    try {
-      const response = await fetch(`http://localhost:3000/api/team/${teamId}`);
-      if (!response.ok) {
-        throw new Error("Nie udało się pobrać szczegółów drużyny.");
-      }
-      const data = await response.json();
-      setTeamDetails(data);
-    } catch (error) {
-      console.error("Błąd podczas pobierania szczegółów drużyny:", error);
-      alert("Nie udało się pobrać szczegółów drużyny.");
-    } finally {
-      setLoadingTeamInfo(false);
-    }
-  };
-
   if (loading) {
     return <p className="text-center mt-10">Ładowanie aplikacji...</p>;
   }
@@ -148,7 +162,6 @@ export default function ManageApplicationsPage() {
       <div className="container mx-auto mt-10">
         <h1 className="text-2xl font-bold mb-6">Zarządzanie aplikacjami</h1>
 
-        {/* Sekcja Moje Aplikacje */}
         <h2 className="text-xl font-semibold mb-4">Moje aplikacje</h2>
         <div className="grid grid-cols-1 gap-4 mb-8">
           {myApplications.map((app) => (
@@ -186,7 +199,6 @@ export default function ManageApplicationsPage() {
           ))}
         </div>
 
-        {/* Sekcja Zarządzanie aplikacjami */}
         <h2 className="text-xl font-semibold mb-4">
           Aplikacje do Twoich meczów
         </h2>
@@ -206,7 +218,7 @@ export default function ManageApplicationsPage() {
                   <div>
                     <span className="text-gray-700">{app.team.name}</span>
                     <button
-                      onClick={() => handleFetchTeamDetails(app.team.id)}
+                      onClick={() => handleInfoClick(app.id)}
                       className={`ml-4 text-blue-500 underline text-sm ${
                         loadingTeamInfo ? "opacity-50 cursor-not-allowed" : ""
                       }`}
@@ -258,7 +270,6 @@ export default function ManageApplicationsPage() {
         ))}
       </div>
 
-      {/* Modal szczegóły drużyny */}
       {teamDetails && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md">
