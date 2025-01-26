@@ -9,11 +9,11 @@ interface MatchCardProps {
   teamName: string;
   teamId: string;
   matchId: string;
-  status: "pending" | "confirmed" | "join"; // Możliwe statusy
+  status: "pending" | "confirmed" | "join" | "rejected"; // Dodano "rejected"
   isOwner: boolean; // Czy użytkownik jest właścicielem meczu
   onStatusUpdate: (
     matchId: string,
-    newStatus: "pending" | "confirmed" | "join"
+    newStatus: "pending" | "confirmed" | "join" | "rejected"
   ) => void; // Callback do aktualizacji statusu
 }
 
@@ -78,7 +78,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
       alert("Zgłoszenie wysłane. Oczekuje na potwierdzenie.");
     } catch (error) {
       console.error("Błąd podczas wysyłania zgłoszenia:", error);
-      alert("Nie udało się wysłać zgłoszenia.");
+      alert("Nie udało się wysłać zgłoszenia. Stwórz swoją drużynę");
     } finally {
       setLoading(false);
     }
@@ -116,21 +116,33 @@ const MatchCard: React.FC<MatchCardProps> = ({
         {isOwner ? (
           <button
             onClick={() => alert("Przekierowanie do edycji meczu")}
-            className="bg-blue-500 text-white px-2 py-1 rounded-md text-xs"
+            className="bg-blue-500 text-white px-4 py-2 rounded-md"
           >
             Edytuj
           </button>
         ) : status === "join" ? (
           <button
             onClick={handleJoinMatch}
-            className="bg-green-500 text-white px-2 py-1 rounded-md text-xs"
+            className="bg-green-500 text-white px-4 py-2 rounded-md"
             disabled={loading}
           >
             Dołącz
           </button>
         ) : (
-          <span className="bg-gray-500 text-white px-2 py-1 rounded-md text-xs">
-            {status === "confirmed" ? "Potwierdzony" : "Oczekuje"}
+          <span
+            className={`text-white px-4 py-2 rounded-md ${
+              status === "confirmed"
+                ? "bg-yellow-500"
+                : status === "rejected"
+                ? "bg-red-500"
+                : "bg-gray-500"
+            }`}
+          >
+            {status === "confirmed"
+              ? "Potwierdzony"
+              : status === "rejected"
+              ? "Odrzucony"
+              : "Oczekuje"}
           </span>
         )}
       </div>

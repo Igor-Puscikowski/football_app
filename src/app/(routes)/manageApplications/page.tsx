@@ -112,7 +112,6 @@ export default function ManageApplicationsPage() {
       alert("Brak ID drużyny.");
       return;
     }
-    console.log("Fetching team details for teamId:", teamId);
 
     setLoadingTeamInfo(true);
     try {
@@ -216,7 +215,7 @@ export default function ManageApplicationsPage() {
                       {loadingTeamInfo ? "Ładowanie..." : "Info"}
                     </button>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 items-center">
                     {app.status === "pending" && (
                       <>
                         <button
@@ -236,12 +235,20 @@ export default function ManageApplicationsPage() {
                       </>
                     )}
                     {app.status === "confirmed" && (
-                      <button
-                        onClick={() => handleUpdateStatus(app.id, "rejected")}
-                        className="bg-red-500 text-white px-4 py-2 rounded-md"
-                      >
-                        Anuluj
-                      </button>
+                      <>
+                        <span className="text-green-500 font-bold">
+                          Zaakceptowano
+                        </span>
+                        <button
+                          onClick={() => handleUpdateStatus(app.id, "rejected")}
+                          className="bg-red-500 text-white px-4 py-2 rounded-md"
+                        >
+                          Anuluj
+                        </button>
+                      </>
+                    )}
+                    {app.status === "rejected" && (
+                      <span className="text-red-500 font-bold">Odrzucono</span>
                     )}
                   </div>
                 </div>
