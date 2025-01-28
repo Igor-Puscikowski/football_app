@@ -23,6 +23,9 @@ export default function CreateTeamPage() {
         skillLevel: "",
       }))
   );
+  const [errors, setErrors] = useState<{ teamName: string; players: string[] }>(
+    { teamName: "", players: Array(6).fill("") }
+  );
   const [hasTeam, setHasTeam] = useState(false);
   const router = useRouter();
 
@@ -46,10 +49,50 @@ export default function CreateTeamPage() {
     const updatedPlayers = [...players];
     updatedPlayers[index] = { ...updatedPlayers[index], [field]: value };
     setPlayers(updatedPlayers);
+
+    // Usuwanie błędu, jeśli pole zostało poprawnie wypełnione
+    const updatedErrors = { ...errors };
+    if (field === "name" && value.trim()) {
+      updatedErrors.players[index] = "";
+    }
+    if (field === "position" && value.trim()) {
+      updatedErrors.players[index] = "";
+    }
+    if (field === "skillLevel" && value.trim()) {
+      updatedErrors.players[index] = "";
+    }
+    setErrors(updatedErrors);
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { teamName: "", players: Array(6).fill("") };
+
+    // Walidacja nazwy drużyny
+    if (!teamName.trim()) {
+      newErrors.teamName = "Nazwa drużyny jest wymagana";
+      isValid = false;
+    }
+
+    // Walidacja zawodników
+    players.forEach((player, index) => {
+      if (!player.name.trim() || !player.position || !player.skillLevel) {
+        newErrors.players[index] =
+          "Wszystkie pola zawodnika muszą być wypełnione";
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return; // Zatrzymaj dalsze działanie, jeśli walidacja się nie powiodła
+    }
 
     const response = await fetch("/api/team/createTeam", {
       method: "POST",
@@ -101,6 +144,9 @@ export default function CreateTeamPage() {
               placeholder="Wprowadź nazwę drużyny"
               className="w-full p-2 border border-gray-300 rounded-md"
             />
+            {errors.teamName && (
+              <p className="text-red-500 text-sm mt-1">{errors.teamName}</p>
+            )}
           </div>
 
           <h2 className="text-xl font-semibold mb-2">Zawodnicy:</h2>
@@ -116,24 +162,36 @@ export default function CreateTeamPage() {
                   placeholder="Imię"
                   className="p-2 border border-gray-300 rounded-md"
                 />
-                <input
-                  type="text"
+                <select
                   value={player.position}
                   onChange={(e) =>
                     handlePlayerChange(index, "position", e.target.value)
                   }
-                  placeholder="Pozycja"
                   className="p-2 border border-gray-300 rounded-md"
-                />
-                <input
-                  type="text"
+                >
+                  <option value="">Wybierz pozycję</option>
+                  <option value="bramkarz">Bramkarz</option>
+                  <option value="obrońca">Obrońca</option>
+                  <option value="pomocnik">Pomocnik</option>
+                  <option value="napastnik">Napastnik</option>
+                </select>
+                <select
                   value={player.skillLevel}
                   onChange={(e) =>
                     handlePlayerChange(index, "skillLevel", e.target.value)
                   }
-                  placeholder="Poziom umiejętności"
                   className="p-2 border border-gray-300 rounded-md"
-                />
+                >
+                  <option value="">Wybierz poziom</option>
+                  <option value="amator">Amator</option>
+                  <option value="pół-zawodowiec">Pół-zawodowiec</option>
+                  <option value="zawodowiec">Zawodowiec</option>
+                </select>
+                {errors.players[index] && (
+                  <p className="text-red-500 text-sm col-span-3 mt-1">
+                    {errors.players[index]}
+                  </p>
+                )}
               </div>
             ))}
           </div>

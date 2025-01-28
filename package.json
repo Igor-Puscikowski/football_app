@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean-db": "ts-node src/app/server.ts/cleanDatabase.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
@@ -15,6 +16,7 @@
     "jsonwebtoken": "^9.0.2",
     "next": "15.0.3",
     "next-auth": "^5.0.0-beta.25",
+    "node-cron": "^3.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
@@ -26,6 +28,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
+    "@types/node-cron": "^3.0.11",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",

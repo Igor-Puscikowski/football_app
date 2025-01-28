@@ -45,7 +45,7 @@ export default function LoginPage() {
 
       const { token } = await response.json();
       document.cookie = `token=${token}; path=/;`;
-      router.push("/home");
+      router.push("/matches");
     } catch (err) {
       setError("root", { message: "An unexpected error occurred." });
       console.error(err);

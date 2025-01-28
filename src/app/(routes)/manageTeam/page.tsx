@@ -94,6 +94,7 @@ export default function ManageTeamPage() {
               handleUpdatePlayer(editingPlayer);
             }}
           >
+            {/* Pole Imię */}
             <div className="mb-4">
               <label className="block font-medium mb-2">Imię:</label>
               <input
@@ -105,10 +106,11 @@ export default function ManageTeamPage() {
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
+
+            {/* Pole Pozycja */}
             <div className="mb-4">
               <label className="block font-medium mb-2">Pozycja:</label>
-              <input
-                type="text"
+              <select
                 value={editingPlayer.position}
                 onChange={(e) =>
                   setEditingPlayer({
@@ -117,12 +119,19 @@ export default function ManageTeamPage() {
                   })
                 }
                 className="w-full p-2 border border-gray-300 rounded-md"
-              />
+              >
+                <option value="">Wybierz pozycję</option>
+                <option value="bramkarz">Bramkarz</option>
+                <option value="obrońca">Obrońca</option>
+                <option value="pomocnik">Pomocnik</option>
+                <option value="napastnik">Napastnik</option>
+              </select>
             </div>
+
+            {/* Pole Poziom Gracza */}
             <div className="mb-4">
               <label className="block font-medium mb-2">Poziom Gracza:</label>
-              <input
-                type="text"
+              <select
                 value={editingPlayer.skillLevel}
                 onChange={(e) =>
                   setEditingPlayer({
@@ -131,8 +140,15 @@ export default function ManageTeamPage() {
                   })
                 }
                 className="w-full p-2 border border-gray-300 rounded-md"
-              />
+              >
+                <option value="">Wybierz poziom</option>
+                <option value="amator">Amator</option>
+                <option value="pół-zawodowiec">Pół-zawodowiec</option>
+                <option value="zawodowiec">Zawodowiec</option>
+              </select>
             </div>
+
+            {/* Przyciski */}
             <div className="flex space-x-4">
               <button
                 type="submit"
