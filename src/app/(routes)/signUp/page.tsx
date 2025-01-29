@@ -54,14 +54,14 @@ export default function SignUpPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md max-w-sm w-full">
-        <h1 className="text-center text-2xl font-bold mb-6">Sign Up</h1>
+        <h1 className="text-center text-2xl font-bold mb-6">Stwórz konto</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label
               htmlFor="username"
               className="block text-sm font-medium text-gray-700"
             >
-              Username
+              Nazwa użytkownika
             </label>
             <input
               {...register("username")}
@@ -94,7 +94,7 @@ export default function SignUpPage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              Hasło
             </label>
             <input
               {...register("password")}
@@ -114,13 +114,13 @@ export default function SignUpPage() {
             disabled={isSubmitting}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
           >
-            {isSubmitting ? "Creating account..." : "Create an account"}
+            {isSubmitting ? "Rejestrowanie..." : "Stwórz konto"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-500">
-          Already have an account?{" "}
+          Masz już konto?{" "}
           <a href="/login" className="text-blue-500 hover:underline">
-            Login here
+            Zaloguj się
           </a>
         </p>
       </div>

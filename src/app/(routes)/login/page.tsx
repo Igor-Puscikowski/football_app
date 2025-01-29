@@ -55,7 +55,7 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md max-w-sm w-full">
-        <h1 className="text-center text-2xl font-bold mb-6">Log In</h1>
+        <h1 className="text-center text-2xl font-bold mb-6">Zaloguj się</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Email Field */}
           <div>
@@ -83,7 +83,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              Hasło
             </label>
             <input
               {...register("password")}
@@ -110,14 +110,14 @@ export default function LoginPage() {
             disabled={isSubmitting}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            {isSubmitting ? "Logging in..." : "Log In"}
+            {isSubmitting ? "Logowanie..." : "Zaloguj się"}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-500">
-          Don't have an account?{" "}
+          Nie masz konta?{" "}
           <a href="/signUp" className="text-blue-500 hover:underline">
-            Sign up here
+            Zarejestruj się
           </a>
         </p>
       </div>
