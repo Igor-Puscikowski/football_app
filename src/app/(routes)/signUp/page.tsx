@@ -44,7 +44,7 @@ export default function SignUpPage() {
         return;
       }
 
-      router.push("/login");
+      router.push("/verify-request"); // Przekierowanie na stronę weryfikacji e-maila
     } catch (err) {
       setError("root", { message: "An unexpected error occurred." });
       console.error(err);

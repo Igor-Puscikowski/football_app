@@ -15,6 +15,7 @@ model User {
   name      String
   email     String   @unique
   password  String
+  emailVerified DateTime?
   team      Team?    @relation("UserTeam") // Jedna drużyna przypisana do użytkownika
   matches   Match[]  @relation("UserMatches")
   createdAt DateTime @default(now())
@@ -64,4 +65,13 @@ model Application {
   matchId     String
   status      String   @default("pending") // Status zgłoszenia: "pending", "confirmed", "rejected"
   createdAt   DateTime @default(now())
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  identifier String   // E-mail lub inne unikalne ID użytkownika
+  token      String   @unique // Token weryfikacyjny
+  expires    DateTime // Data wygaśnięcia tokenu
+  createdAt  DateTime @default(now())
+  @@unique([identifier, token]) // Unikalny klucz złożony dla identyfikatora i tokenu
 }
