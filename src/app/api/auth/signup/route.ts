@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const hashedPassword = await hashPassword(password);
 
     // Tworzenie użytkownika w bazie
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name: username,
         email,
