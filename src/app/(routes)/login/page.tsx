@@ -1,14 +1,16 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify"; // Opcjonalnie: zainstaluj react-toastify, aby wyświetlać ładne powiadomienia
+import "react-toastify/dist/ReactToastify.css"; // Opcjonalnie: style dla react-toastify
 
 // 🛡️ Schemat walidacji Zod
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Nieprawidłowy adres e-mail"),
+  password: z.string().min(6, "Hasło musi mieć co najmniej 6 znaków"),
 });
 
 // 📚 Typowanie formularza
@@ -25,6 +27,25 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  // Obsługa parametru verified z URL
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const verified = url.searchParams.get("verified");
+
+    if (verified === "true") {
+      // Wyświetl komunikat o sukcesie (używamy toast, ale możesz użyć alert lub inny komunikat)
+      toast.success(
+        "E-mail został pomyślnie zweryfikowany. Możesz się teraz zalogować!",
+        {
+          position: "top-right",
+          autoClose: 3000, // Zamknij po 3 sekundach
+        }
+      );
+      // Opcjonalnie: usuń parametr z URL, aby uniknąć ponownego wyświetlania
+      window.history.replaceState({}, document.title, "/login");
+    }
+  }, []);
+
   const onSubmit = async (data: LoginFormData) => {
     try {
       const response = await fetch("/api/auth/login", {
@@ -38,16 +59,16 @@ export default function LoginPage() {
       if (!response.ok) {
         const errorData = await response.json();
         setError("root", {
-          message: errorData.error || "Invalid credentials.",
+          message: errorData.error || "Nieprawidłowe dane logowania.",
         });
         return;
       }
 
       const { token } = await response.json();
-      document.cookie = `token=${token}; path=/;`;
-      router.push("/matches");
+      document.cookie = `token=${token}; path=/;`; // Zapis tokenu w ciasteczku
+      router.push("/matches"); // Przekierowanie po zalogowaniu
     } catch (err) {
-      setError("root", { message: "An unexpected error occurred." });
+      setError("root", { message: "Wystąpił nieoczekiwany błąd." });
       console.error(err);
     }
   };
@@ -57,7 +78,7 @@ export default function LoginPage() {
       <div className="bg-white p-8 rounded-lg shadow-md max-w-sm w-full">
         <h1 className="text-center text-2xl font-bold mb-6">Zaloguj się</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Email Field */}
+          {/* Pole E-mail */}
           <div>
             <label
               htmlFor="email"
@@ -69,7 +90,7 @@ export default function LoginPage() {
               {...register("email")}
               id="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder="Wpisz swój e-mail"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
             {errors.email && (
@@ -77,7 +98,7 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Password Field */}
+          {/* Pole Hasło */}
           <div>
             <label
               htmlFor="password"
@@ -89,7 +110,7 @@ export default function LoginPage() {
               {...register("password")}
               id="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="Wpisz swoje hasło"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
             {errors.password && (
@@ -97,14 +118,14 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Error Message */}
+          {/* Komunikat o błędzie */}
           {errors.root && (
             <p className="text-red-500 text-sm text-center">
               {errors.root.message}
             </p>
           )}
 
-          {/* Submit Button */}
+          {/* Przycisk Zaloguj się */}
           <button
             type="submit"
             disabled={isSubmitting}

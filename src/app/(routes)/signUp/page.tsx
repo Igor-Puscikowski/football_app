@@ -43,10 +43,10 @@ export default function SignUpPage() {
         });
         return;
       }
-
+      alert("Rejestracja udana! Sprawdź e-mail, aby zweryfikować konto.");
       router.push("/verify-request"); // Przekierowanie na stronę weryfikacji e-maila
     } catch (err) {
-      setError("root", { message: "An unexpected error occurred." });
+      setError("root", { message: "Wystąpił nieoczekiwany błąd." });
       console.error(err);
     }
   };

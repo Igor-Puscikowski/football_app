@@ -1,4 +1,3 @@
-// app/api/auth/verify-email/route.ts
 import { NextResponse } from "next/server";
 import prisma from "@/utils/db";
 
@@ -9,29 +8,31 @@ export async function GET(req: Request) {
     const email = url.searchParams.get("email");
 
     if (!token || !email) {
-      return NextResponse.json(
-        { error: "Invalid verification link." },
-        { status: 400 }
+      const redirectUrl = new URL(
+        "/error?message=Invalid verification link.",
+        process.env.NEXTAUTH_URL
       );
+      return NextResponse.redirect(redirectUrl.toString());
     }
 
-    // Znajdź token w bazie
+    // Znajdź token w bazie danych
     const verificationToken = await prisma.verificationToken.findFirst({
       where: {
         token,
         identifier: email,
-        expires: { gt: new Date() }, // Sprawdź, czy token nie wygasł
+        expires: { gt: new Date() },
       },
     });
 
     if (!verificationToken) {
-      return NextResponse.json(
-        { error: "Invalid or expired verification token." },
-        { status: 400 }
+      const redirectUrl = new URL(
+        "/error?message=Invalid or expired verification token.",
+        process.env.NEXTAUTH_URL
       );
+      return NextResponse.redirect(redirectUrl.toString());
     }
 
-    // Zaktualizuj użytkownika, ustawiając emailVerified
+    // Zaktualizuj użytkownika, oznaczając e-mail jako zweryfikowany
     await prisma.user.update({
       where: { email },
       data: { emailVerified: new Date() },
@@ -42,18 +43,18 @@ export async function GET(req: Request) {
       where: { id: verificationToken.id },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Email verified successfully. You can now log in.",
-      },
-      { status: 200 }
+    // Przekieruj na stronę logowania z parametrem sukcesu
+    const successUrl = new URL(
+      "/login?verified=true",
+      process.env.NEXTAUTH_URL
     );
+    return NextResponse.redirect(successUrl.toString());
   } catch (error) {
     console.error(error);
-    return NextResponse.json(
-      { error: "Internal server error." },
-      { status: 500 }
+    const errorUrl = new URL(
+      "/auth/error?message=Internal server error.",
+      process.env.NEXTAUTH_URL
     );
+    return NextResponse.redirect(errorUrl.toString());
   }
 }
